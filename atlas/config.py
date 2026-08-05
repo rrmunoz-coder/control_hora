@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import configparser
+from datetime import timedelta
 import os
 from pathlib import Path
 
@@ -79,9 +80,11 @@ def load_config() -> dict:
         "SESSION_COOKIE_HTTPONLY": True,
         "SESSION_COOKIE_SAMESITE": security.get("session_cookie_samesite", "Lax"),
         "SESSION_COOKIE_SECURE": secure_cookie,
-        "PERMANENT_SESSION_LIFETIME": _positive_int(
-            security, "session_absolute_minutes", 720
-        ) * 60,
+        "PERMANENT_SESSION_LIFETIME": timedelta(
+            minutes=_positive_int(
+                security, "session_absolute_minutes", 720
+            )
+        ),
         "SESSION_IDLE_MINUTES": _positive_int(
             security, "session_idle_minutes", 30
         ),

@@ -64,7 +64,12 @@ def enforce_session():
     now = int(time.time())
     login_at = int(session.get("login_at", now))
     last_activity = int(session.get("last_activity", login_at))
-    absolute_seconds = int(current_app.config["PERMANENT_SESSION_LIFETIME"])
+    absolute_lifetime = current_app.config["PERMANENT_SESSION_LIFETIME"]
+    absolute_seconds = int(
+        absolute_lifetime.total_seconds()
+        if hasattr(absolute_lifetime, "total_seconds")
+        else absolute_lifetime
+    )
     idle_seconds = int(current_app.config["SESSION_IDLE_MINUTES"]) * 60
 
     if now - login_at > absolute_seconds:

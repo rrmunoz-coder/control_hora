@@ -69,4 +69,12 @@ def test_unit_scope_uses_bind_parameters():
     source = (ROOT / "atlas" / "access.py").read_text(encoding="utf-8")
     assert 'f":{name}"' in source
     assert "binds =" in source
-    assert "IN ({placeholders})" not in source
+    assert "IN ({placeholders})" not in source  # no SQL is built in the pure helper itself
+
+
+def test_permanent_session_lifetime_is_timedelta(tmp_path, monkeypatch):
+    config = tmp_path / "config.ini"
+    _write_config(config, secret="a" * 64)
+    monkeypatch.setenv("ATLAS_CONFIG", str(config))
+    loaded = _load_config_function()()
+    assert loaded["PERMANENT_SESSION_LIFETIME"].total_seconds() == 720 * 60
