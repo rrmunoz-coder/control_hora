@@ -1,0 +1,43 @@
+[oracle]
+user=USUARIO_ATLAS
+password=CAMBIAR_CLAVE
+# Ejemplo: servidor:1521/servicio
+dsn=SERVIDOR_ORACLE:1521/SERVICIO
+pool_min=1
+pool_max=8
+pool_increment=1
+
+# true cuando se requiere Oracle Client/Instant Client local.
+thick_mode=true
+# Carpeta que contiene OCI.DLL. Dejar vacía si thick_mode=false.
+client_lib_dir=C:\oracle\instantclient
+
+[ldap]
+enabled=true
+# Uno o más controladores separados por coma.
+servers=dc1.ejemplo.local,dc2.ejemplo.local
+port=636
+use_ssl=true
+start_tls=false
+validate_certificate=true
+# Ruta opcional al certificado CA corporativo en PEM.
+ca_cert_file=
+
+# SIMPLE requiere LDAPS o StartTLS. NTLM también está soportado.
+authentication=SIMPLE
+login_format=UPN
+domain_suffix=ejemplo.local
+netbios_domain=EJEMPLO
+connect_timeout=5
+receive_timeout=8
+
+# Dejar vacío para usar la política TLS del sistema.
+# Usar DEFAULT:@SECLEVEL=0 solo como contingencia temporal documentada.
+tls_ciphers=
+
+[flask]
+# Generar con: python -c "import secrets; print(secrets.token_hex(32))"
+secret_key=CAMBIAR_POR_UN_SECRETO_ALEATORIO_DE_64_CARACTERES
+port=5050
+# En producción debe ser true y la aplicación debe publicarse detrás de HTTPS.
+session_cookie_secure=true
