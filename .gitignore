@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Configuration and secrets
+config.ini
+config.*.ini
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+*.jks
+
+# Runtime
+logs/
+*.log
+*.pid
+
+# Packages, binaries and local tools
+*.zip
+*.7z
+*.rar
+*.exe
+*.dll
+*.msi
+
+# Historical/local copies
+_backup*/
+*_old/
+ATLAS_*_V*/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
