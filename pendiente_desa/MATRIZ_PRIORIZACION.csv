@@ -5,9 +5,9 @@ P0;HTTPS y secretos;CODIGO_LISTO_DESPLIEGUE_PENDIENTE;Alto;Medio;Cookie Secure T
 P0;Errores seguros;REALIZADO_V0.3;Alto;Bajo;Interfaz no expone excepciones Oracle
 P0;Auditoría crítica;REALIZADO_V0.3;Alto;Medio;Aprobaciones y auditoría comparten transacción
 P0;Autorización por unidad;REALIZADO_V0.3;Alto;Medio;Manipulación de IDs fuera de alcance devuelve 403
-P0;Pruebas funcionales integradas;PENDIENTE;Alto;Medio;Pauta v0.3 ejecutada sin defectos P0/P1
+P0;Pruebas funcionales integradas;EN_EJECUCION_PREVIA_PRODUCCION;Alto;Medio;Pauta v0.3 ejecutada sin defectos P0 y con P1 evaluados
 P1;Aprobación semanal;REALIZADO_V0.3;Alto;Alto;Flujo completo hasta cierre y reapertura
 P1;Delegación aprobador;PENDIENTE;Medio;Medio;Sustitución temporal auditada
-P1;Capacidad plan-real;PENDIENTE;Alto;Alto;Reporte por persona/unidad/proyecto
+P1;Capacidad plan-real;PENDIENTE;Alto;Alto;Reporte por persona unidad y proyecto
 P1;Mejoras planilla;PENDIENTE;Medio;Medio;Carga semanal reducida y medible
-P2;Conocimiento operacional;PENDIENTE;Alto;Alto;MVP vinculado a tareas y riesgos
+P2;Conocimiento operacional documental;POSTERGADO_HASTA_CIERRE_PRUEBAS_V0.3;Alto;Alto;MVP v0.4 con textos archivos relaciones versionado permisos búsqueda auditoría y feature flag
