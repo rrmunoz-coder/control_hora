@@ -1,43 +1,50 @@
 [oracle]
 user=USUARIO_ATLAS
 password=CAMBIAR_CLAVE
-# Ejemplo: servidor:1521/servicio
 dsn=SERVIDOR_ORACLE:1521/SERVICIO
 pool_min=1
 pool_max=8
 pool_increment=1
-
-# true cuando se requiere Oracle Client/Instant Client local.
 thick_mode=true
-# Carpeta que contiene OCI.DLL. Dejar vacía si thick_mode=false.
 client_lib_dir=C:\oracle\instantclient
 
 [ldap]
 enabled=true
-# Uno o más controladores separados por coma.
 servers=dc1.ejemplo.local,dc2.ejemplo.local
 port=636
 use_ssl=true
 start_tls=false
 validate_certificate=true
-# Ruta opcional al certificado CA corporativo en PEM.
-ca_cert_file=
-
-# SIMPLE requiere LDAPS o StartTLS. NTLM también está soportado.
+ca_cert_file=C:\certificados\ca-corporativa.pem
 authentication=SIMPLE
 login_format=UPN
 domain_suffix=ejemplo.local
 netbios_domain=EJEMPLO
 connect_timeout=5
 receive_timeout=8
-
-# Dejar vacío para usar la política TLS del sistema.
-# Usar DEFAULT:@SECLEVEL=0 solo como contingencia temporal documentada.
-tls_ciphers=
+tls_ciphers=DEFAULT
+# Solo contingencia temporal formalmente autorizada.
+allow_legacy_ciphers=false
 
 [flask]
 # Generar con: python -c "import secrets; print(secrets.token_hex(32))"
 secret_key=CAMBIAR_POR_UN_SECRETO_ALEATORIO_DE_64_CARACTERES
 port=5050
-# En producción debe ser true y la aplicación debe publicarse detrás de HTTPS.
 session_cookie_secure=true
+
+[security]
+# ATLAS debe estar detrás de HTTPS. Activar después de configurar el proxy TLS.
+force_https=true
+# Habilitar solo si ATLAS recibe tráfico exclusivamente desde un proxy confiable.
+trust_proxy_headers=true
+trusted_proxy_hops=1
+session_idle_minutes=30
+session_absolute_minutes=720
+session_validation_seconds=120
+max_failed_logins=5
+max_failed_logins_ip=20
+login_rate_window_minutes=15
+login_lock_minutes=15
+hsts_seconds=31536000
+session_cookie_samesite=Lax
+content_security_policy=default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'

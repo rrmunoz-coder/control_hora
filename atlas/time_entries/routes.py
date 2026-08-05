@@ -2,47 +2,16 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-import oracledb
-from flask import (
-    Blueprint,
-    flash,
-    redirect,
-    render_template,
-    request,
-    session,
-    url_for,
-)
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
+from ..approvals.service import get_period, submit_period
 from ..audit import record_event
 from ..db import connection
+from ..errors import flash_exception
 from ..security import login_required
-from .service import (
-    get_week_sheet,
-    normalize_week_start,
-    save_week,
-)
+from .secure_service import get_week_sheet, normalize_week_start, save_week
 
-bp = Blueprint(
-    "time_entries",
-    __name__,
-    url_prefix="/imputaciones",
-)
-
-
-def _database_message(exc: oracledb.DatabaseError) -> str:
-    error, = exc.args
-    message = getattr(error, "message", str(exc))
-
-    for prefix in (
-        "ORA-20010: ",
-        "ORA-20011: ",
-        "ORA-20012: ",
-        "ORA-20013: ",
-        "ORA-20014: ",
-    ):
-        message = message.replace(prefix, "")
-
-    return message.strip()
+bp = Blueprint("time_entries", __name__, url_prefix="/imputaciones")
 
 
 @bp.route("")
@@ -63,23 +32,15 @@ def list_entries():
                     I.ESTADO,
                     I.COMENTARIO
                 FROM GT_IMPUTACION_HORAS I
-                JOIN GT_TAREA T
-                  ON T.ID_TAREA = I.ID_TAREA
-                LEFT JOIN GT_PROYECTO P
-                  ON P.ID_PROYECTO = T.ID_PROYECTO
+                JOIN GT_TAREA T ON T.ID_TAREA = I.ID_TAREA
+                LEFT JOIN GT_PROYECTO P ON P.ID_PROYECTO = T.ID_PROYECTO
                 WHERE I.ID_USUARIO = :id_usuario
-                ORDER BY
-                    I.FECHA_TRABAJO DESC,
-                    I.ID_IMPUTACION DESC
+                ORDER BY I.FECHA_TRABAJO DESC, I.ID_IMPUTACION DESC
                 """,
                 {"id_usuario": session["id_usuario"]},
             )
             rows = cur.fetchall()
-
-    return render_template(
-        "time_entries/list.html",
-        entries=rows,
-    )
+    return render_template("time_entries/list.html", entries=rows)
 
 
 @bp.route("/nueva", methods=["GET", "POST"])
@@ -90,72 +51,76 @@ def create_entry():
         if request.method == "POST"
         else request.args.get("semana")
     )
-
     try:
         week_start = normalize_week_start(week_value)
     except ValueError as exc:
-        flash(str(exc), "error")
+        flash_exception(exc, context="Selección de semana")
         week_start = normalize_week_start(None)
 
     if request.method == "POST":
         try:
             result = save_week(
-                session["id_usuario"],
+                int(session["id_usuario"]),
                 week_start,
                 request.form,
+                str(session.get("rol_codigo") or ""),
             )
-
             record_event(
                 "IMPUTACIONES",
                 "GT_IMPUTACION_HORAS",
-                "SAVE_WEEK",
+                "GUARDAR_SEMANA",
                 f"{session['id_usuario']}:{week_start.isoformat()}",
                 after=result,
             )
-
             flash(
-                f"Semana guardada correctamente: "
-                f"{result['weekly_total']} horas.",
+                f"Semana guardada correctamente: {result['weekly_total']} horas.",
                 "success",
             )
-
             return redirect(
-                url_for(
-                    "time_entries.create_entry",
-                    semana=week_start.isoformat(),
-                )
+                url_for("time_entries.create_entry", semana=week_start.isoformat())
             )
-        except oracledb.DatabaseError as exc:
-            flash(_database_message(exc), "error")
         except Exception as exc:
-            flash(str(exc), "error")
+            flash_exception(exc, context="Guardado de semana")
 
     try:
         sheet = get_week_sheet(
-            session["id_usuario"],
+            int(session["id_usuario"]),
             week_start,
+            str(session.get("rol_codigo") or ""),
         )
     except Exception as exc:
-        flash(str(exc), "error")
+        flash_exception(exc, context="Carga de planilla semanal")
+        period = get_period(int(session["id_usuario"]), week_start)
         sheet = {
             "week_start": week_start,
-            "week_end": week_start + timedelta(days=4),
+            "week_end": week_start + timedelta(days=6),
             "days": [],
             "tasks": [],
             "selected_tasks": [],
             "modalities": [],
             "day_modalities": {},
+            "period": period,
+            "week_editable": bool(period["editable"]),
         }
 
-    sheet["previous_week"] = (
-        week_start - timedelta(days=7)
-    ).isoformat()
-    sheet["next_week"] = (
-        week_start + timedelta(days=7)
-    ).isoformat()
+    sheet["previous_week"] = (week_start - timedelta(days=7)).isoformat()
+    sheet["next_week"] = (week_start + timedelta(days=7)).isoformat()
     sheet["current_week"] = normalize_week_start(None).isoformat()
+    return render_template("time_entries/form.html", **sheet)
 
-    return render_template(
-        "time_entries/form.html",
-        **sheet,
+
+@bp.route("/semana/enviar", methods=["POST"])
+@login_required
+def send_week():
+    try:
+        week_start = normalize_week_start(request.form.get("semana_inicio"))
+        submit_period(int(session["id_usuario"]), week_start)
+        flash("Semana enviada a validación correctamente.", "success")
+    except Exception as exc:
+        flash_exception(exc, context="Envío de semana")
+    return redirect(
+        url_for(
+            "time_entries.create_entry",
+            semana=request.form.get("semana_inicio") or "",
+        )
     )

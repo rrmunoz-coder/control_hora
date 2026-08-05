@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Aprobaciones · ATLAS{% endblock %}
+{% block section_name %}Aprobaciones{% endblock %}
+{% block content %}
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">VALIDACIÓN</span>
+        <h1>Semanas pendientes</h1>
+        <p>Revisa el esfuerzo declarado por tu equipo antes de aprobarlo.</p>
+    </div>
+</section>
+<section class="panel data-panel">
+    {% if approvals %}
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Persona</th><th>Unidad</th><th>Semana</th><th>Horas</th><th>Enviada</th><th></th></tr></thead>
+            <tbody>
+            {% for item in approvals %}
+                <tr>
+                    <td><strong>{{ item.usuario_nombre }}</strong><br><small>{{ item.usuario }}</small></td>
+                    <td>{{ item.unidad or 'Sin unidad' }}</td>
+                    <td>{{ item.fecha_desde }} al {{ item.fecha_hasta }}</td>
+                    <td>{{ item.horas_declaradas or 0 }} h</td>
+                    <td>{{ item.fecha_envio or '—' }}</td>
+                    <td><a class="button secondary" href="{{ url_for('approvals.detail', validation_id=item.id_validacion) }}">Revisar</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state"><span class="empty-icon">✓</span><strong>No hay semanas pendientes</strong><p>Las semanas enviadas por tu equipo aparecerán aquí.</p></div>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,15 +1,22 @@
 # Seguridad
 
-- [ ] Revalidar usuario activo, rol y permisos en cada solicitud o mediante caché corto/versionado.
-- [ ] Invalidar todas las sesiones cuando se desactiva un usuario o cambia su rol.
-- [ ] Configurar timeout por inactividad y duración máxima.
-- [ ] Implementar rate limiting y bloqueo temporal por usuario/IP.
-- [ ] Eliminar cipher débil como default; documentar excepción temporal.
-- [ ] Rotar el secreto Flask productivo.
-- [ ] Publicar con HTTPS y HSTS.
-- [ ] Incorporar CSP y cabeceras defensivas.
-- [ ] Sustituir exposición de excepciones por códigos/mensajes controlados.
-- [ ] Registrar fallos de auditoría y definir cuándo una operación debe abortar.
-- [ ] Validar proxies confiables antes de usar `X-Forwarded-For`.
-- [ ] Revisar privilegios Oracle y separar usuario de migraciones del usuario de runtime.
+## Realizado v0.3.0
+- [x] Revalidar usuario activo, rol y versión de sesión.
+- [x] Invalidar sesiones al desactivar o modificar usuario.
+- [x] Timeout por inactividad y duración máxima.
+- [x] Bloqueo temporal por usuario y dirección de origen.
+- [x] Eliminar `SECLEVEL=0` como valor por defecto.
+- [x] Validar secreto Flask mínimo de 32 bytes.
+- [x] Soportar HTTPS forzado, cookies seguras y HSTS.
+- [x] Incorporar CSP y cabeceras defensivas.
+- [x] Sustituir exposición de excepciones por mensajes controlados.
+- [x] Registrar fallos de auditoría y hacer atómicas las aprobaciones críticas.
+- [x] Aceptar cabeceras de proxy únicamente cuando se configura ProxyFix.
+
+## Pendiente de despliegue o gobierno
+- [ ] Rotar el secreto Flask real en producción.
+- [ ] Instalar y validar HTTPS y CA LDAP en infraestructura.
+- [ ] Revisar privilegios Oracle y separar migraciones de runtime.
 - [ ] Activar secret scanning, Dependabot y protección de rama.
+- [ ] Revisar periódicamente retención de IP y auditoría.
+- [ ] Ejecutar pentest y revisión de dependencias en ambiente corporativo.

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Ingreso · ATLAS{% endblock %}
+{% block auth_content %}
+<div class="auth-layout">
+    <section class="auth-visual" aria-hidden="true">
+        <div class="auth-visual-glow"></div>
+        <div class="auth-brand">
+            <img src="{{ url_for('static', filename='img/atlas-mark.svg') }}" alt="">
+            <div>
+                <strong>ATLAS</strong>
+                <span>Gestión de capacidad</span>
+            </div>
+        </div>
+
+        <div class="auth-message">
+            <span class="eyebrow">OPERACIÓN INTELIGENTE</span>
+            <h1>Visibilidad real sobre el trabajo del equipo.</h1>
+            <p>Imputación, capacidad y gestión operativa en una sola plataforma.</p>
+        </div>
+
+        <div class="auth-security">
+            <span class="security-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 3 8.5 7 10 4-1.5 7-5.4 7-10V6l-7-3Zm-3 9 2 2 4-4"/></svg>
+            </span>
+            <div>
+                <strong>Acceso corporativo seguro</strong>
+                <span>Las credenciales se validan contra el directorio institucional.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="auth-panel">
+        <div class="login-box">
+            <div class="login-mobile-brand">
+                <img src="{{ url_for('static', filename='img/atlas-mark.svg') }}" alt="">
+                <strong>ATLAS</strong>
+            </div>
+
+            <span class="eyebrow">BIENVENIDO</span>
+            <h2>Inicia sesión</h2>
+            <p class="login-intro">Usa tu cuenta corporativa autorizada en ATLAS.</p>
+
+            <form method="post" class="login-form" data-login-form>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+
+                <label class="field">
+                    <span>Usuario</span>
+                    <div class="input-shell">
+                        <span class="input-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8c0-4 3-6 7-6s7 2 7 6"/></svg>
+                        </span>
+                        <input name="usuario" autocomplete="username" placeholder="nombre.apellido" required autofocus>
+                    </div>
+                </label>
+
+                <label class="field">
+                    <span>Contraseña</span>
+                    <div class="input-shell">
+                        <span class="input-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M7 10V8a5 5 0 0 1 10 0v2m-11 0h12v10H6V10Z"/></svg>
+                        </span>
+                        <input type="password" name="password" autocomplete="current-password" placeholder="Tu contraseña corporativa" required data-password>
+                        <button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña">
+                            <svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
+                        </button>
+                    </div>
+                </label>
+
+                <button class="login-button" type="submit" data-submit>
+                    <span class="button-label">Ingresar a ATLAS</span>
+                    <span class="button-loader" aria-hidden="true"></span>
+                </button>
+            </form>
+
+            <div class="login-note">
+                <span class="note-dot"></span>
+                <span>El acceso requiere inscripción previa y un rol activo.</span>
+            </div>
+
+            <footer class="login-footer">ATLAS · Plataforma interna</footer>
+        </div>
+    </section>
+</div>
+{% endblock %}

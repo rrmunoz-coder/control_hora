@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 
 from ..audit import record_event
+from ..errors import flash_exception
 from ..security import roles_required
 from .service import (
     UNIT_TYPES,
@@ -53,7 +54,7 @@ def create():
             flash("Unidad creada correctamente.", "success")
             return redirect(url_for("units.list_units"))
         except Exception as exc:
-            flash(str(exc), "error")
+            flash_exception(exc, context="Gestión de unidades")
 
     return render_template(
         "units/form.html",
@@ -86,7 +87,7 @@ def edit(unit_id: int):
             flash("Unidad actualizada correctamente.", "success")
             return redirect(url_for("units.list_units"))
         except Exception as exc:
-            flash(str(exc), "error")
+            flash_exception(exc, context="Gestión de unidades")
             unit = get_unit(unit_id) or unit
 
     return render_template(
@@ -117,6 +118,6 @@ def change_status(unit_id: int):
         )
         flash(message, "success")
     except Exception as exc:
-        flash(str(exc), "error")
+        flash_exception(exc, context="Gestión de unidades")
 
     return redirect(request.referrer or url_for("units.list_units"))

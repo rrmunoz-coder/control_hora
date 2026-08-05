@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Revisión semanal · ATLAS{% endblock %}
+{% block section_name %}Aprobaciones{% endblock %}
+{% block content %}
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">{{ item.estado }}</span>
+        <h1>{{ item.usuario_nombre }}</h1>
+        <p>{{ item.unidad or 'Sin unidad' }} · {{ item.fecha_desde.strftime('%d-%m-%Y') }} al {{ item.fecha_hasta.strftime('%d-%m-%Y') }}</p>
+    </div>
+    <a class="button secondary" href="{{ url_for('approvals.list_approvals') }}">Volver</a>
+</section>
+<section class="panel data-panel">
+    <div class="weekly-section-head"><div><span class="panel-kicker">DETALLE</span><h2>{{ item.horas_declaradas or 0 }} horas declaradas</h2></div></div>
+    {% if item.entries %}
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Tarea</th><th>Tipo</th><th>Horas</th><th>Comentario</th></tr></thead><tbody>
+    {% for entry in item.entries %}<tr><td>{{ entry.fecha }}</td><td><code class="code-tag">{{ entry.codigo }}</code><br>{{ entry.titulo }}</td><td><span class="badge {{ entry.clasificacion_costo|lower }}">{{ entry.clasificacion_costo }}</span></td><td>{{ entry.horas }}</td><td>{{ entry.comentario or '—' }}</td></tr>{% endfor %}
+    </tbody></table></div>
+    {% else %}<div class="empty-state"><strong>Semana sin horas imputadas</strong></div>{% endif %}
+</section>
+
+{% if item.estado == 'ENVIADO' %}
+<section class="panel">
+    <form method="post" data-form>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label><span>Comentario de validación</span><textarea name="comentario" maxlength="2000" placeholder="Obligatorio al observar o rechazar"></textarea></label>
+        <div class="form-actions">
+            <button class="button" formaction="{{ url_for('approvals.review', validation_id=item.id_validacion, action='aprobar') }}" type="submit">Aprobar</button>
+            <button class="button secondary" formaction="{{ url_for('approvals.review', validation_id=item.id_validacion, action='observar') }}" type="submit">Observar</button>
+            <button class="button danger" formaction="{{ url_for('approvals.review', validation_id=item.id_validacion, action='rechazar') }}" type="submit">Rechazar</button>
+        </div>
+    </form>
+</section>
+{% elif item.estado in ['APROBADO', 'CERRADO'] and session.get('rol_codigo') == 'ADMIN' %}
+<section class="panel">
+    {% if item.estado == 'APROBADO' %}
+    <form method="post" action="{{ url_for('approvals.close', validation_id=item.id_validacion) }}" data-form>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label><span>Comentario de cierre opcional</span><textarea name="comentario" maxlength="2000"></textarea></label>
+        <div class="form-actions"><button class="button" type="submit">Cerrar semana</button></div>
+    </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('approvals.reopen', validation_id=item.id_validacion) }}" data-form>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label><span>Motivo de reapertura</span><textarea name="comentario" maxlength="2000" required></textarea></label>
+        <div class="form-actions"><button class="button danger" type="submit">Reabrir semana</button></div>
+    </form>
+</section>
+{% endif %}
+{% endblock %}

@@ -7,7 +7,7 @@ VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 OUT = ROOT.parent / f"control_hora_v{VERSION}_instalacion.zip"
 REQUIRED = ["atlas/__init__.py", "requirements.txt", "config.ini.example", "service_entry.py", "sql"]
 EXCLUDED_DIRS = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", "logs"}
-EXCLUDED_NAMES = {"config.ini", "nssm.exe"}
+EXCLUDED_NAMES = {"config.ini", "nssm.exe", "CHECKSUMS.md"}
 EXCLUDED_SUFFIXES = {".pyc", ".pyo", ".log", ".zip", ".exe", ".dll"}
 missing = [item for item in REQUIRED if not (ROOT / item).exists()]
 if missing:

@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% macro body() %}<section class="error-page"><div class="error-code">404</div><span class="eyebrow">ATLAS</span><h1>Página no encontrada</h1><p>La ruta solicitada no existe o fue movida.</p><div class="heading-actions"><a class="button" href="{{ url_for('auth.login') if not session.get('id_usuario') else url_for('dashboard.index') }}">Continuar</a></div><p><small>Código de referencia: {{ request_id }}</small></p></section>{% endmacro %}
+{% block title %}404 · ATLAS{% endblock %}{% block section_name %}Error{% endblock %}
+{% block content %}{{ body() }}{% endblock %}{% block auth_content %}{{ body() }}{% endblock %}

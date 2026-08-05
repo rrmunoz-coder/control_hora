@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · ATLAS{% endblock %}
+{% block section_name %}Dashboard{% endblock %}
+{% block content %}
+<section class="page-heading">
+    <div><span class="eyebrow">RESUMEN OPERATIVO</span><h1>Hola, {{ (session.get('nombre') or session.get('usuario')).split(' ')[0] }}</h1><p>Esta es tu actividad consolidada del mes en curso.</p></div>
+    <div class="heading-actions"><a class="button secondary" href="{{ url_for('time_entries.list_entries') }}"><span aria-hidden="true">≡</span> Ver historial</a><a class="button" href="{{ url_for('time_entries.create_entry') }}"><span aria-hidden="true">＋</span> Imputar horas</a></div>
+</section>
+<section class="metric-grid">
+    <article class="metric-card"><div class="metric-head"><span class="metric-icon cyan"><svg viewBox="0 0 24 24"><path d="M4 7h6l2 2h8v11H4V7Zm0 0V5h6l2 2"/></svg></span><span class="metric-trend neutral">Mes actual</span></div><div class="metric-value">{{ metrics.proyectos_abiertos }}</div><div class="metric-label">Proyectos abiertos</div><div class="metric-foot">Con actividad vigente</div></article>
+    <article class="metric-card"><div class="metric-head"><span class="metric-icon blue"><svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-5M5 4h14v16H5V4Z"/></svg></span><span class="metric-trend neutral">Activas</span></div><div class="metric-value">{{ metrics.tareas_abiertas }}</div><div class="metric-label">Tareas abiertas</div><div class="metric-foot">Pendientes o en ejecución</div></article>
+    <article class="metric-card"><div class="metric-head"><span class="metric-icon violet"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg></span><span class="metric-trend positive">Acumulado</span></div><div class="metric-value">{{ '%.2f'|format(metrics.horas_mes) }}</div><div class="metric-label">Horas del mes</div><div class="metric-foot">Imputaciones aceptadas</div></article>
+    <article class="metric-card {% if metrics.alertas_carga %}has-alert{% endif %}"><div class="metric-head"><span class="metric-icon amber"><svg viewBox="0 0 24 24"><path d="M12 4 3 20h18L12 4Zm0 5v5m0 3h.01"/></svg></span><span class="metric-trend {% if metrics.alertas_carga %}warning{% else %}positive{% endif %}">{% if metrics.alertas_carga %}Revisar{% else %}Sin alertas{% endif %}</span></div><div class="metric-value">{{ metrics.alertas_carga }}</div><div class="metric-label">Días con alerta</div><div class="metric-foot">Carga superior a lo esperado</div></article>
+</section>
+<section class="dashboard-grid">
+    <article class="panel allocation-panel">
+        <div class="panel-header"><div><span class="panel-kicker">DISTRIBUCIÓN FINANCIERA</span><h2>OPEX / CAPEX</h2></div><span class="period-badge">Mes actual</span></div>
+        {% if opex_capex %}
+            {% set total = namespace(value=0) %}{% for row in opex_capex %}{% set total.value = total.value + row[1]|float %}{% endfor %}
+            {% set capex_hours = opex_capex|selectattr('0','equalto','CAPEX')|map(attribute=1)|list|first|default(0)|float %}{% set capex_pct = ((capex_hours / total.value * 100) if total.value else 0)|round|int %}
+            <div class="allocation-chart"><div class="donut capex-{{ capex_pct }}"><div class="donut-center"><strong>{{ '%.1f'|format(total.value) }}</strong><span>horas</span></div></div><div class="allocation-legend">{% for row in opex_capex %}<div class="legend-row"><span class="legend-dot {{ row[0]|lower }}"></span><div><strong>{{ row[0] }}</strong><span>{{ '%.2f'|format(row[1]|float) }} horas</span></div><b>{{ '%.0f'|format((row[1]|float / total.value * 100) if total.value else 0) }}%</b></div>{% endfor %}</div></div>
+        {% else %}<div class="empty-state compact"><span class="empty-icon">◌</span><strong>Aún no existen horas este mes</strong><p>Las imputaciones aparecerán aquí automáticamente.</p></div>{% endif %}
+    </article>
+    <article class="panel activity-panel">
+        <div class="panel-header"><div><span class="panel-kicker">ACTIVIDAD RECIENTE</span><h2>Últimas imputaciones</h2></div><a class="text-link" href="{{ url_for('time_entries.list_entries') }}">Ver todas →</a></div>
+        {% if recent_entries %}<div class="activity-list">{% for row in recent_entries %}<div class="activity-item"><div class="activity-date"><strong>{{ row[1][8:10] }}</strong><span>{{ row[1][5:7] }}/{{ row[1][0:4] }}</span></div><div class="activity-copy"><strong>{{ row[3] }}</strong><span>{{ row[2] }}</span></div><span class="badge {{ row[4]|lower }}">{{ row[4] }}</span><strong class="activity-hours">{{ '%.2f'|format(row[5]|float) }} h</strong></div>{% endfor %}</div>
+        {% else %}<div class="empty-state compact"><span class="empty-icon">↗</span><strong>No hay actividad reciente</strong><p>Registra tu primera imputación para comenzar.</p></div>{% endif %}
+    </article>
+</section>
+<section class="panel quick-panel"><div><span class="panel-kicker">ACCESO RÁPIDO</span><h2>Registra tu jornada sin perder tiempo</h2><p>Selecciona la tarea, indica la fecha y carga las horas realmente utilizadas.</p></div><a class="button large" href="{{ url_for('time_entries.create_entry') }}">Registrar horas ahora</a></section>
+{% endblock %}

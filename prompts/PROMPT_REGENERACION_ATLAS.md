@@ -17,11 +17,15 @@ ATLAS es un sistema web interno para transformar el registro de trabajo en capac
 
 ## Arquitectura actual que debes preservar
 - Application factory `create_app`.
-- Blueprints: auth, dashboard, users, units, projects, tasks, time_entries y costs.
+- Blueprints: auth, dashboard, users, units, projects, tasks, time_entries, approvals y costs.
 - Servicios Python por dominio.
 - Pool Oracle y transacciones explícitas.
 - Packages PL/SQL para reglas críticas.
 - CSRF global.
+- Sesión revocable mediante `SESSION_VERSION`, revalidación, timeout absoluto e inactividad.
+- Rate limit persistente por usuario y origen.
+- Alcance operacional por unidad y jerarquía.
+- Auditoría crítica dentro de la transacción de negocio.
 - `config.ini` externo y `config.ini.example` sanitizado.
 
 ## Modelo funcional
@@ -58,10 +62,20 @@ ATLAS es un sistema web interno para transformar el registro de trabajo en capac
 - Privilegios Oracle mínimos.
 - Protección contra IDOR y autorización por unidad/proyecto.
 
+## Baseline obligatorio v0.3.0
+Debes preservar y probar:
+1. Flujo semanal `PENDIENTE → ENVIADO → APROBADO/CERRADO`, con observación, rechazo y reapertura auditada.
+2. Bloqueo de edición en estados enviados, aprobados o cerrados.
+3. Revalidación y revocación de sesión al cambiar usuario/rol/estado.
+4. Bloqueo de login por usuario y origen.
+5. HTTPS, CSP, HSTS, cookies seguras y LDAP con certificado validado.
+6. Errores correlacionados y auditoría atómica de acciones críticas.
+7. Alcance por unidad, descendientes, responsabilidad y asignación.
+
 ## Evolución funcional prioritaria
-1. Flujo de semana: borrador, enviada, observada, corregida, aprobada, cerrada y reapertura auditada.
+1. Delegación temporal y reemplazante de aprobador.
 2. Capacidad planificada versus real, ausencias y sobreasignación.
-3. Edición y vigencia de proyectos/tareas, no solo creación.
+3. Edición, clonación y vigencia de proyectos/tareas.
 4. Copiar semana anterior, tareas favoritas/recientes y horas fraccionarias configurables.
 5. Dashboard de gestión por unidad con drill-down y privacidad.
 6. Conocimiento operacional vinculado a tarea/actividad/servicio.
@@ -89,7 +103,7 @@ Implementar un MVP, no un wiki genérico:
 ## Entregables obligatorios
 1. Árbol completo del repositorio.
 2. Todos los archivos fuente, plantillas, CSS, JS y SQL.
-3. Migraciones numeradas y rollback.
+3. Migraciones numeradas, idempotentes y con rollback seguro.
 4. `config.ini.example` sin valores reales.
 5. `requirements.txt` y dependencias de desarrollo.
 6. Pruebas ejecutables.
@@ -100,7 +114,8 @@ Implementar un MVP, no un wiki genérico:
 
 ## Criterios de aceptación
 - `python -m compileall` sin errores.
-- `pytest` exitoso.
+- `pytest` exitoso en Python 3.12 con todas las dependencias instaladas.
+- Pruebas funcionales por perfiles USUARIO, JEFE y ADMIN documentadas.
 - Ninguna ruta privada sin decorador de seguridad.
 - Ningún formulario POST sin CSRF.
 - Ninguna consulta construida desde entrada del usuario sin whitelist/binds.
@@ -111,3 +126,7 @@ Implementar un MVP, no un wiki genérico:
 
 ## Forma de trabajo
 Primero analiza el repositorio existente y presenta un plan de cambios. Luego genera una versión completa en una rama nueva. Conserva compatibilidad de datos y no inventes tablas o reglas sin documentar la decisión. Toda modificación funcional debe incluir prueba, migración si corresponde y actualización del changelog.
+
+
+## Referencia de versión
+La línea base vigente es ATLAS v0.3.0 del 5 de agosto de 2026. Una regeneración no puede eliminar ni debilitar controles ya implementados bajo el argumento de simplificar código. Cualquier cambio en seguridad, autorización, estados o auditoría debe incluir migración, prueba de regresión y explicación de compatibilidad.

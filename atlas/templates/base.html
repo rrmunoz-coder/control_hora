@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#07111f">
+    <title>{% block title %}ATLAS{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/atlas-mark.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/v03.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/users.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/units.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/weekly.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/costs.css') }}">
+</head>
+<body class="{% if session.get('id_usuario') %}app-body{% else %}auth-body{% endif %}">
+{% if session.get('id_usuario') %}
+<div class="app-shell" data-app-shell>
+    <div class="sidebar-backdrop" data-sidebar-backdrop></div>
+
+    <aside class="sidebar" data-sidebar>
+        <div class="sidebar-header">
+            <a class="brand" href="{{ url_for('dashboard.index') }}" aria-label="Ir al dashboard">
+                <img src="{{ url_for('static', filename='img/atlas-mark.svg') }}" alt="">
+                <span>
+                    <strong>ATLAS</strong>
+                    <small>Gestión de capacidad</small>
+                </span>
+            </a>
+            <button class="icon-button sidebar-close" type="button" data-sidebar-close aria-label="Cerrar menú">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Navegación principal">
+            <div class="nav-section">
+                <span class="nav-label">Resumen</span>
+                <a class="nav-item {% if request.endpoint == 'dashboard.index' %}active{% endif %}"
+                   href="{{ url_for('dashboard.index') }}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6V11h-6v9Zm0-16v5h6V4h-6Z"/></svg>
+                    </span>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-label">Mi trabajo</span>
+                <a class="nav-item {% if request.endpoint == 'time_entries.create_entry' %}active{% endif %}"
+                   href="{{ url_for('time_entries.create_entry') }}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
+                    </span>
+                    <span>Imputar horas</span>
+                </a>
+                <a class="nav-item {% if request.endpoint == 'time_entries.list_entries' %}active{% endif %}"
+                   href="{{ url_for('time_entries.list_entries') }}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M7 3v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z"/></svg>
+                    </span>
+                    <span>Mis imputaciones</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-label">Gestión</span>
+                <a class="nav-item {% if request.blueprint == 'tasks' %}active{% endif %}"
+                   href="{{ url_for('tasks.list_tasks') }}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-5M5 4h14v16H5V4Z"/></svg>
+                    </span>
+                    <span>Tareas</span>
+                </a>
+                <a class="nav-item {% if request.blueprint == 'projects' %}active{% endif %}"
+                   href="{{ url_for('projects.list_projects') }}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M4 7h6l2 2h8v11H4V7Zm0 0V5h6l2 2"/></svg>
+                    </span>
+                    <span>Proyectos</span>
+                </a>
+                {% if session.get('rol_codigo') in ['ADMIN','JEFE'] %}
+                <a class="nav-item {% if request.blueprint == 'approvals' %}active{% endif %}"
+                   href="{{ url_for('approvals.list_approvals') }}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6M4 4h16v16H4V4Z"/></svg>
+                    </span>
+                    <span>Aprobaciones</span>
+                </a>
+                {% endif %}
+            </div>
+
+            {% if costs_visible %}
+            <div class="nav-section">
+                <span class="nav-label">Costos y eficiencia</span>
+                <a class="nav-item {% if request.blueprint == 'costs' %}active{% endif %}"
+                   href="{{ url_for('costs.dashboard') }}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M4 19V9m5 10V5m6 14v-7m5 7V3"/></svg>
+                    </span>
+                    <span>Gestión financiera</span>
+                </a>
+            </div>
+            {% endif %}
+
+            {% if session.get('rol_codigo') == 'ADMIN' %}
+            <div class="nav-section">
+                <span class="nav-label">Administración</span>
+                <a class="nav-item {% if request.blueprint == 'users' %}active{% endif %}"
+                   href="{{ url_for('users.list_users') }}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M19 8v6m-3-3h6"/></svg>
+                    </span>
+                    <span>Usuarios</span>
+                </a>
+                <a class="nav-item {% if request.blueprint == 'units' %}active{% endif %}"
+                   href="{{ url_for('units.list_units') }}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 4v5m0 0H6m6 0h6M6 9v5m12-5v5M3 14h6v6H3v-6Zm12 0h6v6h-6v-6Zm-6 0h6v6H9v-6Z"/></svg>
+                    </span>
+                    <span>Unidades</span>
+                </a>
+            </div>
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar">{{ (session.get('nombre') or session.get('usuario') or 'A')[:1]|upper }}</div>
+                <div class="user-meta">
+                    <strong>{{ session.get('nombre') or session.get('usuario') }}</strong>
+                    <span>{{ session.get('rol_nombre') or session.get('rol_codigo') }}</span>
+                </div>
+                <button class="icon-button menu-trigger" type="button" data-user-menu-trigger aria-label="Opciones de usuario"><span aria-hidden="true">•••</span></button>
+                <div class="user-menu" data-user-menu>
+                    <div class="user-menu-head"><strong>{{ session.get('usuario') }}</strong><small>Sesión autenticada</small></div>
+                    <form method="post" action="{{ url_for('auth.logout') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="menu-action danger" type="submit">Cerrar sesión</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="app-main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="icon-button menu-toggle" type="button" data-sidebar-open aria-label="Abrir menú"><span aria-hidden="true">☰</span></button>
+                <div class="breadcrumb"><span>ATLAS</span><span aria-hidden="true">/</span><strong>{% block section_name %}Inicio{% endblock %}</strong></div>
+            </div>
+            <div class="topbar-right">
+                <div class="connection-pill" title="Autenticación corporativa activa"><span class="status-dot"></span><span>Conectado</span></div>
+                <a class="quick-action" href="{{ url_for('time_entries.create_entry') }}"><span aria-hidden="true">＋</span><span>Imputar</span></a>
+            </div>
+        </header>
+
+        <main class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="toast-stack" aria-live="polite">
+                        {% for category, message in messages %}
+                            <div class="toast {{ category }}" data-toast>
+                                <div class="toast-mark" aria-hidden="true">{% if category in ['success', 'ok'] %}✓{% elif category in ['error', 'danger'] %}!{% else %}i{% endif %}</div>
+                                <div class="toast-copy">
+                                    <strong>{% if category in ['success', 'ok'] %}Operación completada{% elif category in ['error', 'danger'] %}No fue posible completar{% else %}Información{% endif %}</strong>
+                                    <span>{{ message }}</span>
+                                </div>
+                                <button type="button" class="toast-close" data-toast-close aria-label="Cerrar">×</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% else %}
+<main class="auth-main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="auth-toast-stack" aria-live="polite">
+                {% for category, message in messages %}
+                    <div class="toast {{ category }}" data-toast>
+                        <div class="toast-mark" aria-hidden="true">!</div>
+                        <div class="toast-copy"><strong>Acceso no autorizado</strong><span>{{ message }}</span></div>
+                        <button type="button" class="toast-close" data-toast-close aria-label="Cerrar">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    {% block auth_content %}{% endblock %}
+</main>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/users.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/weekly.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/costs.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/units.js') }}" defer></script>
+</body>
+</html>
