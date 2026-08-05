@@ -1,0 +1,10 @@
+prioridad;tema;impacto;esfuerzo;criterio_salida
+P0;Invalidación de sesiones;Alto;Medio;Usuario desactivado pierde acceso inmediatamente
+P0;Rate limiting login;Alto;Medio;Bloqueo temporal y auditoría probados
+P0;HTTPS y secretos;Alto;Medio;Cookie Secure y TLS validados
+P0;Errores seguros;Alto;Bajo;Interfaz no expone excepciones Oracle
+P0;Pruebas de autorización;Alto;Medio;Cada ruta privada tiene casos 200/302/403
+P1;Aprobación semanal;Alto;Alto;Flujo completo con auditoría
+P1;Capacidad plan-real;Alto;Alto;Reporte por persona/unidad/proyecto
+P1;Mejoras planilla;Medio;Medio;Carga semanal reducida y medible
+P2;Conocimiento operacional;Alto;Alto;MVP vinculado a tareas y riesgos
