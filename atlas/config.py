@@ -19,7 +19,10 @@ def _as_list(value: str | None) -> list[str]:
 
 
 def _positive_int(section, name: str, default: int, minimum: int = 1) -> int:
-    value = section.getint(name, fallback=default)
+    if hasattr(section, "getint"):
+        value = section.getint(name, fallback=default)
+    else:
+        value = int(section.get(name, default))
     if value < minimum:
         raise RuntimeError(f"{name} debe ser mayor o igual a {minimum}.")
     return value
@@ -42,6 +45,8 @@ def load_config() -> dict:
     flask = parser["flask"]
     ldap = parser["ldap"] if parser.has_section("ldap") else {}
     security = parser["security"] if parser.has_section("security") else {}
+    features = parser["features"] if parser.has_section("features") else {}
+    knowledge = parser["knowledge"] if parser.has_section("knowledge") else {}
 
     secret_key = flask.get("secret_key", "").strip()
     if len(secret_key.encode("utf-8")) < 32:
@@ -74,9 +79,27 @@ def load_config() -> dict:
             "force_https=true requiere session_cookie_secure=true."
         )
 
+    knowledge_enabled = _as_bool(features.get("knowledge_enabled"), False)
+    knowledge_storage_path = knowledge.get("storage_path", "").strip()
+    knowledge_max_file_mb = _positive_int(knowledge, "max_file_mb", 25)
+    knowledge_extensions = {
+        item.lower().lstrip(".")
+        for item in _as_list(
+            knowledge.get(
+                "allowed_extensions",
+                "pdf,docx,xlsx,pptx,txt,csv,png,jpg,jpeg",
+            )
+        )
+    }
+    if knowledge_enabled and not knowledge_storage_path:
+        raise RuntimeError(
+            "knowledge.storage_path es obligatorio cuando knowledge_enabled=true."
+        )
+
     return {
         "SECRET_KEY": secret_key,
         "ATLAS_PORT": flask.getint("port", 5050),
+        "SESSION_COOKIE_NAME": flask.get("session_cookie_name", "session").strip() or "session",
         "SESSION_COOKIE_HTTPONLY": True,
         "SESSION_COOKIE_SAMESITE": security.get("session_cookie_samesite", "Lax"),
         "SESSION_COOKIE_SECURE": secure_cookie,
@@ -141,4 +164,14 @@ def load_config() -> dict:
         "LDAP_NETBIOS_DOMAIN": ldap.get("netbios_domain", "").strip(),
         "LDAP_CONNECT_TIMEOUT": int(ldap.get("connect_timeout", 5)),
         "LDAP_RECEIVE_TIMEOUT": int(ldap.get("receive_timeout", 8)),
+        "KNOWLEDGE_ENABLED": knowledge_enabled,
+        "KNOWLEDGE_STORAGE_PATH": knowledge_storage_path,
+        "KNOWLEDGE_MAX_FILE_MB": knowledge_max_file_mb,
+        "KNOWLEDGE_ALLOWED_EXTENSIONS": knowledge_extensions,
+        "KNOWLEDGE_ANTIVIRUS_REQUIRED": _as_bool(
+            knowledge.get("antivirus_required"), True
+        ),
+        "KNOWLEDGE_ANTIVIRUS_COMMAND": knowledge.get(
+            "antivirus_command", ""
+        ).strip(),
     }

@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}{% if document %}Editar{% else %}Nuevo{% endif %} conocimiento · ATLAS{% endblock %}
+{% block section_name %}Conocimiento{% endblock %}
+{% block content %}
+<section>
+    <div class="section-header">
+        <div>
+            <h1>{% if document %}Editar documento{% else %}Nuevo documento{% endif %}</h1>
+            <p>El contenido se guarda versionado. Un documento publicado no se sobrescribe directamente.</p>
+        </div>
+        <a class="button" href="{% if document %}{{ url_for('knowledge.detail', document_id=document.id) }}{% else %}{{ url_for('knowledge.list_documents') }}{% endif %}">Volver</a>
+    </div>
+
+    <form method="post" class="form-grid">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>
+            Título
+            <input type="text" name="titulo" maxlength="250" required value="{{ request.form.get('titulo', document.titulo if document else '') }}">
+        </label>
+
+        <label>
+            Tipo documental
+            {% set selected_tipo = request.form.get('tipo', document.tipo if document else 'PROCEDIMIENTO') %}
+            <select name="tipo" required>
+                {% for item in document_types %}
+                <option value="{{ item }}" {% if selected_tipo == item %}selected{% endif %}>{{ item|replace('_',' ')|title }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Unidad dueña
+            {% set selected_unit = request.form.get('id_unidad', document.id_unidad if document else '')|string %}
+            <select name="id_unidad" required>
+                {% for unit in units %}
+                <option value="{{ unit[0] }}" {% if selected_unit == unit[0]|string %}selected{% endif %}>{{ unit[1] }} · {{ unit[2] }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Revisor
+            {% set selected_reviewer = request.form.get('id_revisor', document.id_revisor if document and document.id_revisor else '')|string %}
+            <select name="id_revisor">
+                <option value="">Sin asignar</option>
+                {% for user in users %}
+                <option value="{{ user[0] }}" {% if selected_reviewer == user[0]|string %}selected{% endif %}>{{ user[1] }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Clasificación
+            {% set selected_class = request.form.get('clasificacion', document.clasificacion if document else 'INTERNO') %}
+            <select name="clasificacion" required>
+                {% for item in classifications %}
+                <option value="{{ item }}" {% if selected_class == item %}selected{% endif %}>{{ item|title }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Etiquetas
+            <input type="text" name="etiquetas" maxlength="1000" value="{{ request.form.get('etiquetas', document.etiquetas if document and document.etiquetas else '') }}" placeholder="facturación, oracle, cierre, control">
+        </label>
+
+        <label>
+            Fecha de vigencia
+            <input type="date" name="fecha_vigencia" value="{{ request.form.get('fecha_vigencia', document.fecha_vigencia.strftime('%Y-%m-%d') if document and document.fecha_vigencia else '') }}">
+        </label>
+
+        <label>
+            Próxima revisión
+            <input type="date" name="fecha_prox_revision" value="{{ request.form.get('fecha_prox_revision', document.fecha_prox_revision.strftime('%Y-%m-%d') if document and document.fecha_prox_revision else '') }}">
+        </label>
+
+        <label class="field-wide">
+            Resumen
+            <textarea name="resumen" maxlength="1000" rows="3">{{ request.form.get('resumen', document.resumen if document and document.resumen else '') }}</textarea>
+        </label>
+
+        <label class="field-wide">
+            Contenido
+            <textarea name="contenido" rows="18" placeholder="Procedimiento, reglas, pasos, controles, decisiones o solución del incidente.">{{ request.form.get('contenido', document.contenido if document and document.contenido else '') }}</textarea>
+            <small>Primera fase: texto plano escapado por la interfaz. El editor enriquecido sanitizado se incorpora después.</small>
+        </label>
+
+        <label class="field-wide">
+            Motivo del cambio
+            <input type="text" name="motivo" maxlength="1000" required value="{{ request.form.get('motivo', '') }}" placeholder="Creación inicial, actualización de procedimiento, cambio de regla…">
+        </label>
+
+        <div class="field-wide actions">
+            <button type="submit" class="button primary">{% if document %}Guardar nueva versión{% else %}Crear borrador{% endif %}</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

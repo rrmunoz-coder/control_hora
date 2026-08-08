@@ -1,3 +1,7 @@
+# ATLAS piloto conocimiento - ejemplo sanitizado.
+# pilot/01_PREPARAR_PILOTO.cmd genera config.ini copiando Oracle/LDAP
+# del ATLAS productivo y aislando puerto/cookie/secreto.
+
 [oracle]
 user=USUARIO_ATLAS
 password=CAMBIAR_CLAVE
@@ -22,23 +26,18 @@ domain_suffix=ejemplo.local
 netbios_domain=EJEMPLO
 connect_timeout=5
 receive_timeout=8
-tls_ciphers=DEFAULT
-# Solo contingencia temporal formalmente autorizada.
+tls_ciphers=DEFAULT:@SECLEVEL=1
 allow_legacy_ciphers=false
 
 [flask]
-# Generar con: python -c "import secrets; print(secrets.token_hex(32))"
-secret_key=CAMBIAR_POR_UN_SECRETO_ALEATORIO_DE_64_CARACTERES
-port=5050
-session_cookie_secure=true
-# Permite aislar sesiones cuando existe un piloto en el mismo host con otro puerto.
-session_cookie_name=session
+secret_key=GENERAR_NUEVO_SECRETO_PARA_PILOTO
+port=5051
+session_cookie_secure=false
+session_cookie_name=atlas_knowledge_test_session
 
 [security]
-# ATLAS debe estar detrás de HTTPS. Activar después de configurar el proxy TLS.
-force_https=true
-# Habilitar solo si ATLAS recibe tráfico exclusivamente desde un proxy confiable.
-trust_proxy_headers=true
+force_https=false
+trust_proxy_headers=false
 trusted_proxy_hops=1
 session_idle_minutes=30
 session_absolute_minutes=720
@@ -52,15 +51,11 @@ session_cookie_samesite=Lax
 content_security_policy=default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
 
 [features]
-# Modulo v0.4: desplegar inicialmente apagado y habilitar solo en piloto.
 knowledge_enabled=false
 
 [knowledge]
-# Ruta fuera del arbol de codigo y no servida directamente por el web server.
-storage_path=K:\@@@@@ATLAS_DATA\conocimiento
+storage_path=K:\@@@@@ATLAS_DATA\conocimiento_test
 max_file_mb=25
 allowed_extensions=pdf,docx,xlsx,pptx,txt,csv,png,jpg,jpeg
-# Mientras no exista scanner corporativo configurado, las cargas de archivos deben quedar bloqueadas.
 antivirus_required=true
-# Comando corporativo futuro. Debe devolver codigo 0 cuando el archivo este limpio.
 antivirus_command=

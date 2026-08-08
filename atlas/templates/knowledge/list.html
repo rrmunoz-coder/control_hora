@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Conocimiento · ATLAS{% endblock %}
+{% block section_name %}Conocimiento{% endblock %}
+{% block content %}
+<section>
+    <div class="section-header">
+        <div>
+            <h1>Conocimiento operacional</h1>
+            <p>Procedimientos, reglas, decisiones e instructivos vinculados al trabajo de ATLAS.</p>
+        </div>
+        <a class="button primary" href="{{ url_for('knowledge.create') }}">Nuevo documento</a>
+    </div>
+
+    <form method="get" class="filter-bar">
+        <label>
+            Buscar
+            <input type="search" name="q" value="{{ request.args.get('q','') }}" placeholder="Título, resumen o etiqueta">
+        </label>
+        <label>
+            Tipo
+            <select name="tipo">
+                <option value="">Todos</option>
+                {% for item in document_types %}
+                <option value="{{ item }}" {% if request.args.get('tipo') == item %}selected{% endif %}>{{ item|replace('_',' ')|title }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Estado
+            <select name="estado">
+                <option value="">Todos</option>
+                {% for item in states %}
+                <option value="{{ item }}" {% if request.args.get('estado') == item %}selected{% endif %}>{{ item|replace('_',' ')|title }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <button type="submit" class="button">Filtrar</button>
+    </form>
+
+    {% if documents %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Documento</th>
+                    <th>Tipo</th>
+                    <th>Unidad</th>
+                    <th>Estado</th>
+                    <th>Clasificación</th>
+                    <th>Versión</th>
+                    <th>Revisión</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('knowledge.detail', document_id=doc.id) }}"><strong>{{ doc.titulo }}</strong></a>
+                        {% if doc.resumen %}<div>{{ doc.resumen }}</div>{% endif %}
+                    </td>
+                    <td>{{ doc.tipo|replace('_',' ') }}</td>
+                    <td>{{ doc.unidad }}</td>
+                    <td>{{ doc.estado|replace('_',' ') }}</td>
+                    <td>{{ doc.clasificacion }}</td>
+                    <td>v{{ doc.version }}</td>
+                    <td>{{ doc.fecha_prox_revision or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>Sin documentos visibles</h2>
+        <p>Crea el primer documento o modifica los filtros de búsqueda.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
