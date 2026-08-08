@@ -1,0 +1,50 @@
+# Perfil sanitizado que reproduce el modo de ejecución validado de S.2.0.
+# Usar solo en red interna controlada mientras no exista terminación HTTPS.
+
+[oracle]
+user=USUARIO_ATLAS
+password=CAMBIAR_CLAVE
+dsn=SERVIDOR_ORACLE:1521/SERVICIO
+pool_min=1
+pool_max=8
+pool_increment=1
+thick_mode=true
+client_lib_dir=C:\oracle\instantclient
+
+[ldap]
+enabled=true
+servers=dc1.ejemplo.local,dc2.ejemplo.local
+port=636
+use_ssl=true
+start_tls=false
+validate_certificate=true
+ca_cert_file=C:\certificados\ca-corporativa.pem
+authentication=SIMPLE
+login_format=UPN
+domain_suffix=ejemplo.local
+netbios_domain=EJEMPLO
+connect_timeout=5
+receive_timeout=8
+# Compatibilidad temporal validada cuando OpenSSL reporta EE certificate key too weak.
+tls_ciphers=DEFAULT:@SECLEVEL=1
+allow_legacy_ciphers=false
+
+[flask]
+secret_key=CAMBIAR_POR_UN_SECRETO_ALEATORIO_DE_64_CARACTERES
+port=5050
+session_cookie_secure=false
+
+[security]
+force_https=false
+trust_proxy_headers=false
+trusted_proxy_hops=1
+session_idle_minutes=30
+session_absolute_minutes=720
+session_validation_seconds=120
+max_failed_logins=5
+max_failed_logins_ip=20
+login_rate_window_minutes=15
+login_lock_minutes=15
+hsts_seconds=31536000
+session_cookie_samesite=Lax
+content_security_policy=default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
