@@ -1,8 +1,7 @@
 -- ATLAS v0.3.0
 -- Seguridad de sesión, bloqueo de acceso, auditoría y aprobación semanal.
 -- Ejecutar con el esquema propietario de las tablas ATLAS.
-
-SET DEFINE OFF;
+-- DBeaver: usar Execute SQL Script para procesar los bloques separados por /.
 
 BEGIN
     EXECUTE IMMEDIATE q'[
