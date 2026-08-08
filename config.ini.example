@@ -48,3 +48,17 @@ login_lock_minutes=15
 hsts_seconds=31536000
 session_cookie_samesite=Lax
 content_security_policy=default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
+
+[features]
+# Modulo v0.4: desplegar inicialmente apagado y habilitar solo en piloto.
+knowledge_enabled=false
+
+[knowledge]
+# Ruta fuera del arbol de codigo y no servida directamente por el web server.
+storage_path=K:\@@@@@ATLAS_DATA\conocimiento
+max_file_mb=25
+allowed_extensions=pdf,docx,xlsx,pptx,txt,csv,png,jpg,jpeg
+# Mientras no exista scanner corporativo configurado, las cargas de archivos deben quedar bloqueadas.
+antivirus_required=true
+# Comando corporativo futuro. Debe devolver codigo 0 cuando el archivo este limpio.
+antivirus_command=
