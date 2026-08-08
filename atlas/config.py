@@ -99,6 +99,7 @@ def load_config() -> dict:
     return {
         "SECRET_KEY": secret_key,
         "ATLAS_PORT": flask.getint("port", 5050),
+        "SESSION_COOKIE_NAME": flask.get("session_cookie_name", "session").strip() or "session",
         "SESSION_COOKIE_HTTPONLY": True,
         "SESSION_COOKIE_SAMESITE": security.get("session_cookie_samesite", "Lax"),
         "SESSION_COOKIE_SECURE": secure_cookie,
