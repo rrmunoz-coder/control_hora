@@ -31,6 +31,8 @@ allow_legacy_ciphers=false
 secret_key=CAMBIAR_POR_UN_SECRETO_ALEATORIO_DE_64_CARACTERES
 port=5050
 session_cookie_secure=true
+# Permite aislar sesiones cuando existe un piloto en el mismo host con otro puerto.
+session_cookie_name=session
 
 [security]
 # ATLAS debe estar detrás de HTTPS. Activar después de configurar el proxy TLS.
