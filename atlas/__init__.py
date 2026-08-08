@@ -46,7 +46,9 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     app.config.setdefault("SESSION_REFRESH_EACH_REQUEST", False)
-    app.config.setdefault("MAX_CONTENT_LENGTH", 10 * 1024 * 1024)
+    app.config["MAX_CONTENT_LENGTH"] = (
+        app.config.get("MAX_CONTENT_LENGTH") or 10 * 1024 * 1024
+    )
     if app.config.get("KNOWLEDGE_ENABLED"):
         app.config["MAX_CONTENT_LENGTH"] = max(
             int(app.config["MAX_CONTENT_LENGTH"]),
