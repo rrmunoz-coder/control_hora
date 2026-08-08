@@ -1,29 +1,24 @@
 # Seguridad
 
-## Reporte
-No publicar vulnerabilidades, credenciales ni configuración interna en issues públicos. Utilizar un canal privado del responsable del repositorio.
+## Controles incorporados
 
-## Controles incorporados en v0.3.0
-- Revocación y revalidación de sesiones.
-- Timeout absoluto y por inactividad.
-- Bloqueo temporal por usuario y dirección de origen.
-- Configuración segura validada al arrancar.
-- LDAP con verificación de certificado.
-- HTTPS forzado y cookies seguras.
-- CSP, HSTS y cabeceras defensivas.
-- CSRF global.
-- Errores con correlación sin exposición de Oracle.
-- Auditoría transaccional para el flujo semanal.
-- Autorización backend por unidad y rol.
+ATLAS mantiene CSRF global, revalidación/revocación de sesión, timeout absoluto/inactividad, rate limiting por usuario/origen, autorización backend por unidad/rol, errores correlacionados, auditoría transaccional, CSP y validación de certificado LDAP.
 
-## Controles obligatorios de despliegue
-- Rotar el secreto Flask productivo por uno aleatorio de 32 bytes o más.
-- Instalar certificado HTTPS y publicar detrás de un proxy confiable.
-- Configurar la CA corporativa de LDAP.
-- Mantener `config.ini` fuera del repositorio y con ACL restringida.
-- Aplicar `sql/60_SEGURIDAD_APROBACIONES_V0_3.sql` antes del reinicio.
-- Usar un usuario Oracle de runtime con privilegios mínimos.
-- Mantener el repositorio privado y proteger `main`.
+## Perfil recomendado
 
-## Riesgo residual
-Las pruebas automáticas no sustituyen las pruebas integradas contra Oracle, LDAP, proxy TLS y servicio Windows del ambiente objetivo. Consultar `docs/PRUEBAS_FUNCIONALES_V0_3_0.md`.
+Producción debe operar detrás de HTTPS con `force_https=true`, `session_cookie_secure=true`, proxy confiable correctamente configurado y `tls_ciphers=DEFAULT` para LDAP.
+
+## Compatibilidad temporal S.2.0
+
+El runtime validado requirió `DEFAULT:@SECLEVEL=1` porque el certificado LDAPS corporativo fue rechazado por OpenSSL con `EE certificate key too weak`. Se mantiene `validate_certificate=true` y `allow_legacy_ciphers=false`. Esta excepción debe retirarse cuando infraestructura renueve los certificados.
+
+El perfil HTTP directo (`force_https=false`, cookie no Secure) existe solo para reproducir la instalación integrada actual mientras no exista terminación TLS. No debe considerarse el estado final de seguridad.
+
+## Controles de despliegue
+
+- Secreto Flask aleatorio >=32 bytes.
+- `config.ini` fuera de Git y con ACL mínima.
+- CA LDAP confiable y accesible por la cuenta del servicio.
+- Usuario Oracle runtime con privilegios mínimos.
+- Repositorio privado/protegido.
+- Revisar `pendiente_desa/PENDIENTES_S_2_0.md`.
