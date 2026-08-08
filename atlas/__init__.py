@@ -47,6 +47,11 @@ def create_app(test_config=None):
 
     app.config.setdefault("SESSION_REFRESH_EACH_REQUEST", False)
     app.config.setdefault("MAX_CONTENT_LENGTH", 10 * 1024 * 1024)
+    if app.config.get("KNOWLEDGE_ENABLED"):
+        app.config["MAX_CONTENT_LENGTH"] = max(
+            int(app.config["MAX_CONTENT_LENGTH"]),
+            int(app.config.get("KNOWLEDGE_MAX_FILE_MB", 25)) * 1024 * 1024,
+        )
 
     if app.config.get("TRUST_PROXY_HEADERS"):
         hops = int(app.config.get("TRUSTED_PROXY_HOPS", 1))
@@ -72,10 +77,15 @@ def create_app(test_config=None):
     from .costs.routes import bp as costs_bp
     from .costs.access import can_manage_costs, can_view_costs
 
-    for blueprint in (
+    blueprints = [
         auth_bp, dashboard_bp, projects_bp, tasks_bp,
         time_entries_bp, approvals_bp, users_bp, units_bp, costs_bp,
-    ):
+    ]
+    if app.config.get("KNOWLEDGE_ENABLED"):
+        from .knowledge.routes import bp as knowledge_bp
+        blueprints.append(knowledge_bp)
+
+    for blueprint in blueprints:
         app.register_blueprint(blueprint)
 
     @app.before_request
@@ -118,6 +128,7 @@ def create_app(test_config=None):
         return {
             "costs_visible": can_view_costs(),
             "costs_can_manage": can_manage_costs(),
+            "knowledge_enabled": bool(app.config.get("KNOWLEDGE_ENABLED")),
         }
 
     @app.errorhandler(CSRFError)
