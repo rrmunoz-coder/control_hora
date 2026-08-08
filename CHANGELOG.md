@@ -1,5 +1,24 @@
 # Changelog
 
+## S.2.0 — 2026-08-07
+
+### Consolidación productiva
+- Snapshot completo del código y estructura validada en runtime.
+- Login web LDAP validado end-to-end después de reiniciar `ATLAS_Web`.
+- Servicio Windows confirmado con NSSM y `.venv` de ATLAS.
+- Se documenta que WMIC puede mostrar el Python base del venv aunque `sys.executable` y NSSM apunten al `.venv`.
+
+### LDAP/TLS
+- Se incorpora perfil temporal compatible con certificados LDAPS de clave legacy usando `DEFAULT:@SECLEVEL=1`.
+- Se mantiene `validate_certificate=true`; no se habilita `SECLEVEL=0`.
+- Se agrega prueba directa de bind LDAP sin pasar por contadores de login ATLAS.
+
+### Instalación y base de datos
+- Se recuperan a `sql/` los scripts `50_IMPUTACION_DIRECTA_PROYECTOS_V3.sql` y `51_VALIDAR_IMPUTACION_DIRECTA_PROYECTOS_V3.sql` que estaban solo en un paquete histórico.
+- `60_SEGURIDAD_APROBACIONES_V0_3.sql` queda compatible con ejecución en DBeaver al eliminar `SET DEFINE OFF`.
+- Se agrega manual S.2.0, diagnóstico de servicio, pruebas de runtime y validación de release.
+- El paquete de instalación excluye secretos, `.venv`, logs, respaldos, ZIP históricos y `nssm.exe`.
+
 ## v0.3.0 — 2026-08-05
 
 ### Seguridad y autenticación
