@@ -19,7 +19,10 @@ def _as_list(value: str | None) -> list[str]:
 
 
 def _positive_int(section, name: str, default: int, minimum: int = 1) -> int:
-    value = section.getint(name, fallback=default)
+    if hasattr(section, "getint"):
+        value = section.getint(name, fallback=default)
+    else:
+        value = int(section.get(name, default))
     if value < minimum:
         raise RuntimeError(f"{name} debe ser mayor o igual a {minimum}.")
     return value
