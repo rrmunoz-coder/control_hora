@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}{{ document.titulo }} · ATLAS{% endblock %}
+{% block section_name %}Conocimiento{% endblock %}
+{% block content %}
+<section>
+    <div class="section-header">
+        <div>
+            <div>{{ document.tipo|replace('_',' ') }} · {{ document.clasificacion }} · v{{ document.version }}</div>
+            <h1>{{ document.titulo }}</h1>
+            {% if document.resumen %}<p>{{ document.resumen }}</p>{% endif %}
+        </div>
+        <div class="actions">
+            <a class="button" href="{{ url_for('knowledge.list_documents') }}">Biblioteca</a>
+            {% if can_edit %}<a class="button primary" href="{{ url_for('knowledge.edit', document_id=document.id) }}">Editar</a>{% endif %}
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <article class="panel">
+            <h2>Contenido</h2>
+            {% if document.contenido %}
+            <div class="document-content"><pre>{{ document.contenido }}</pre></div>
+            {% else %}
+            <p>Este documento todavía no tiene contenido.</p>
+            {% endif %}
+        </article>
+
+        <aside class="panel">
+            <h2>Ficha</h2>
+            <dl>
+                <dt>Estado</dt><dd>{{ document.estado|replace('_',' ') }}</dd>
+                <dt>Unidad</dt><dd>{{ document.unidad }}</dd>
+                <dt>Propietario</dt><dd>{{ document.propietario }}</dd>
+                <dt>Revisor</dt><dd>{{ document.revisor or 'Sin asignar' }}</dd>
+                <dt>Etiquetas</dt><dd>{{ document.etiquetas or '—' }}</dd>
+                <dt>Vigencia</dt><dd>{{ document.fecha_vigencia or '—' }}</dd>
+                <dt>Próxima revisión</dt><dd>{{ document.fecha_prox_revision or '—' }}</dd>
+                <dt>Último cambio</dt><dd>{{ document.motivo or '—' }}</dd>
+            </dl>
+        </aside>
+    </div>
+
+    {% if can_edit or can_review %}
+    <article class="panel">
+        <h2>Flujo documental</h2>
+        {% if document.estado == 'BORRADOR' and can_edit %}
+        <form method="post" action="{{ url_for('knowledge.change_state', document_id=document.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="estado" value="EN_REVISION">
+            <label>Motivo <input type="text" name="motivo" maxlength="1000" value="Enviar a revisión"></label>
+            <button type="submit" class="button primary">Enviar a revisión</button>
+        </form>
+        {% elif document.estado == 'EN_REVISION' and can_review %}
+        <form method="post" action="{{ url_for('knowledge.change_state', document_id=document.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>Motivo <input type="text" name="motivo" maxlength="1000" required></label>
+            <button type="submit" name="estado" value="PUBLICADO" class="button primary">Publicar</button>
+            <button type="submit" name="estado" value="BORRADOR" class="button">Devolver a borrador</button>
+        </form>
+        {% elif document.estado == 'PUBLICADO' %}
+        <form method="post" action="{{ url_for('knowledge.change_state', document_id=document.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>Motivo <input type="text" name="motivo" maxlength="1000" required></label>
+            {% if can_edit or can_review %}<button type="submit" name="estado" value="REQUIERE_ACTUALIZACION" class="button">Requiere actualización</button>{% endif %}
+            {% if can_review %}<button type="submit" name="estado" value="OBSOLETO" class="button">Marcar obsoleto</button>{% endif %}
+        </form>
+        {% elif document.estado == 'REQUIERE_ACTUALIZACION' %}
+        <form method="post" action="{{ url_for('knowledge.change_state', document_id=document.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>Motivo <input type="text" name="motivo" maxlength="1000" required></label>
+            {% if can_edit %}<button type="submit" name="estado" value="BORRADOR" class="button primary">Abrir nueva revisión</button>{% endif %}
+            {% if can_review %}<button type="submit" name="estado" value="OBSOLETO" class="button">Marcar obsoleto</button>{% endif %}
+        </form>
+        {% endif %}
+    </article>
+    {% endif %}
+
+    <article class="panel">
+        <h2>Historial de versiones</h2>
+        {% if document.versiones %}
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Motivo</th></tr></thead>
+                <tbody>
+                {% for version in document.versiones %}
+                    <tr><td>v{{ version.version }}</td><td>{{ version.fecha }}</td><td>{{ version.autor }}</td><td>{{ version.motivo }}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}<p>Sin versiones registradas.</p>{% endif %}
+    </article>
+
+    <article class="panel">
+        <h2>Relaciones operacionales</h2>
+        {% if document.relaciones %}
+        <ul>
+            {% for relation in document.relaciones %}
+            <li>{{ relation.tipo }} #{{ relation.id_entidad }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}<p>Aún no hay entidades relacionadas.</p>{% endif %}
+    </article>
+</section>
+{% endblock %}
