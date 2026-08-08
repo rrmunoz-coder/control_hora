@@ -15,14 +15,15 @@ La autenticación web LDAP, Oracle, CSRF/sesión y servicio Windows quedaron val
 
 ## P1 — núcleo operacional
 
-1. Delegación temporal/reemplazante de aprobador con vigencia y auditoría.
-2. Cierre mensual y reglas de corte.
-3. Plan de capacidad versus real, ausencias y sobreasignación.
-4. Edición/clonación/vigencia integral de proyectos y tareas.
-5. Copiar semana anterior, favoritos/recientes y fracciones de hora configurables.
-6. Dashboard gerencial por unidad con privacidad y drill-down.
-7. Notificaciones de semanas pendientes, observadas, rechazadas o vencidas.
-8. Automatizar smoke test post-reinicio del servicio.
+1. **Corregir drift productivo de `PKG_GT_ORG_UNIDAD`.** La extracción del 7 de agosto de 2026 mostró `V_ACTIVO NOT IN ('S','U')`; la tabla y el código versionado usan correctamente `S/N`. Aplicar el body vigente de `sql/41B_PKG_GT_ORG_UNIDAD_BODY.sql` en producción y probar activación/desactivación de unidades.
+2. Delegación temporal/reemplazante de aprobador con vigencia y auditoría.
+3. Cierre mensual y reglas de corte.
+4. Plan de capacidad versus real, ausencias y sobreasignación.
+5. Edición/clonación/vigencia integral de proyectos y tareas.
+6. Copiar semana anterior, favoritos/recientes y fracciones de hora configurables.
+7. Dashboard gerencial por unidad con privacidad y drill-down.
+8. Notificaciones de semanas pendientes, observadas, rechazadas o vencidas.
+9. Automatizar smoke test post-reinicio del servicio.
 
 ## P2 — diferenciación
 
